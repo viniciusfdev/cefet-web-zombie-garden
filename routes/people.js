@@ -106,5 +106,26 @@ router.post("/", async (req, res) => {
 //   2. Redirecionar para a rota de listagem de pessoas
 //      - Em caso de sucesso do DELETE, colocar uma mensagem feliz
 //      - Em caso de erro do DELETE, colocar mensagem vermelhinha
+router.delete("/:id", (req, res) => {
+  const { id } = req.params || {};
+
+  if (!id || id === "") {
+    req.flash("error", "The person id property is required to delete.");
+    res.redirect(req.baseUrl, 302);
+  } else {
+    db.execute(`DELETE FROM person WHERE id = '${id}' LIMIT 1`)
+      .then(() => {
+        req.flash("success", `Person with ${id} was deleted.`);
+        res.redirect(req.baseUrl, 302);
+      })
+      .catch((err) => {
+        req.flash(
+          "error",
+          `Person with ${id} could not be deleted due to error: ${err?.message}`
+        );
+        res.redirect(req.baseUrl, 302);
+      });
+  }
+});
 
 export default router;
